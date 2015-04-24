@@ -1,6 +1,10 @@
 <?php
 require_once t3lib_extMgm::extPath('tweetnews', 'Resources/Contrib/CodeBird.php');
-class Tx_Tweetnews_Provider_NewsConfigurationProvider extends Tx_Flux_Provider_AbstractConfigurationProvider {
+//class Tx_Tweetnews_Provider_NewsConfigurationProvider extends Tx_Flux_Provider_AbstractConfigurationProvider {
+
+class Tx_Tweetnews_Provider_NewsConfigurationProvider extends \FluidTYPO3\Flux\Provider\Provider{
+
+        protected $objectManager;
 
 	/**
 	 * @var Tx_News_Domain_Repository_NewsRepository
@@ -43,7 +47,7 @@ class Tx_Tweetnews_Provider_NewsConfigurationProvider extends Tx_Flux_Provider_A
 	 * @throws Exception
 	 * @return void
 	 */
-	public function postProcessRecord($operation, $id, array &$row, t3lib_TCEmain $reference) {
+     public function postProcessRecord($operation, $id, array &$row, \TYPO3\CMS\Core\DataHandling\DataHandler $reference, array $removals = array()) {
 		$query = $this->newsRepository->createQuery();
 		$query->getQuerySettings()->setRespectStoragePage(FALSE);
 		$query->getQuerySettings()->setIgnoreEnableFields(TRUE);
@@ -191,9 +195,15 @@ class Tx_Tweetnews_Provider_NewsConfigurationProvider extends Tx_Flux_Provider_A
 	 * @return array
 	 */
 	protected function getSettings($extensionKey) {
-		$settings = $this->configurationManager->getConfiguration(
-			Tx_Extbase_Configuration_ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
-		);
+       $this->objectManager = t3lib_div::makeInstance('Tx_Extbase_Object_ObjectManager'); 
+       $configurationManager = $this->objectManager->get('Tx_Extbase_Configuration_ConfigurationManagerInterface');
+       $settings = $configurationManager->getConfiguration(
+                   Tx_Extbase_Configuration_ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+       );
+
+		//$settings = $this->configurationManager->getConfiguration(
+		//	Tx_Extbase_Configuration_ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+		//);
 		$settings = (array) $settings['plugin.']['tx_' . $extensionKey . '.']['settings.'];
 		$settings = t3lib_div::removeDotsFromTS($settings);
 		return $settings;
